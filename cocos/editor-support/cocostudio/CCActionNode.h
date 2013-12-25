@@ -27,7 +27,7 @@
 
 #include "cocos2d.h"
 #include "cocostudio/CCActionFrame.h"
-#include "cocostudio/CSContentJsonDictionary.h"
+#include "cocostudio/DictionaryHelper.h"
 
 namespace cocostudio {
 
@@ -149,7 +149,7 @@ public:
 	virtual void stopAction();
 	
     /*init properties with a json dictionary*/
-    virtual void initWithDictionary(JsonDictionary* dic,cocos2d::Object* root);
+	virtual void initWithDictionary(const rapidjson::Value& dic,Object* root);
 
     /**
      * Gets if the action is done once time.
@@ -168,7 +168,7 @@ protected:
 	cocos2d::Action* _action;
 	cocos2d::Object* _object;
     
-	cocos2d::Array* _frameArray;
+    std::vector<cocos2d::Vector<ActionFrame*>> _frameArray;
 	int _frameArrayNum;
 
 protected:
@@ -176,7 +176,7 @@ protected:
 	virtual cocos2d::Spawn * refreshActionProperty();
 	virtual void runAction();
 	virtual void initActionNodeFromRoot(cocos2d::Object* root);
-	virtual void easingToFrame(float duration,float delayTime,ActionFrame* destFrame);
+	virtual void easingToFrame(float duration,float delayTime,ActionFrame* srcFrame,ActionFrame* destFrame);
 };
 
 }
