@@ -86,6 +86,8 @@ Armature::Armature()
     , _parentBone(nullptr)
     , _armatureTransformDirty(true)
     , _animation(nullptr)
+    , _textureAtlas(nullptr)
+    , _texture(nullptr)
 {
 }
 
@@ -96,6 +98,7 @@ Armature::~Armature(void)
     _topBoneList.clear();
 
     CC_SAFE_DELETE(_animation);
+    CC_SAFE_RELEASE_NULL(_textureAtlas);
 }
 
 
@@ -115,6 +118,10 @@ bool Armature::init(const std::string& name)
         CC_SAFE_DELETE(_animation);
         _animation = new ArmatureAnimation();
         _animation->init(this);
+        
+        CC_SAFE_DELETE(_textureAtlas);
+        _textureAtlas = new TextureAtlas();
+        _textureAtlas->initWithTexture(nullptr, 8);
 
         _boneDic.clear();
         _topBoneList.clear();
@@ -179,7 +186,7 @@ bool Armature::init(const std::string& name)
 
         }
 
-        setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+        setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
 
         setCascadeOpacityEnabled(true);
         setCascadeColorEnabled(true);
@@ -193,8 +200,9 @@ bool Armature::init(const std::string& name)
 
 bool Armature::init(const std::string& name, Bone *parentBone)
 {
-    _parentBone = parentBone;
-    return init(name);
+    bool ret = init(name);
+    setParentBone(parentBone);
+    return ret;
 }
 
 
@@ -397,15 +405,27 @@ void Armature::draw()
             case CS_DISPLAY_SPRITE:
             {
                 Skin *skin = static_cast<Skin *>(node);
+                Texture2D *texture = skin->getTexture();
+                
+                if(_texture != texture)
+                {
+                    drawQuads();
+                }
+                
+                if(_textureAtlas->getCapacity() == _textureAtlas->getTotalQuads() && !_textureAtlas->resizeCapacity(_textureAtlas->getCapacity() * 2))
+                {
+                    return;
+                }
+                
+                _texture = texture;
                 skin->updateTransform();
                 
                 bool blendDirty = bone->isBlendDirty();
                 
                 if (blendDirty)
                 {
-                    skin->setBlendFunc(bone->getBlendFunc());
+                    drawQuads();
                 }
-                skin->draw();
             }
             break;
             case CS_DISPLAY_ARMATURE:
@@ -415,6 +435,8 @@ void Armature::draw()
             break;
             default:
             {
+                drawQuads();
+            
                 node->visit();
                 CC_NODE_DRAW_SETUP();
             }
@@ -427,6 +449,36 @@ void Armature::draw()
             CC_NODE_DRAW_SETUP();
         }
     }
+    
+    if (_parentBone == nullptr && _batchNode == nullptr)
+    {
+        drawQuads();
+    }
+}
+
+void Armature::drawQuads()
+{
+        // Optimization: Fast Dispatch
+    if( _textureAtlas->getTotalQuads() == 0 || _texture == nullptr)
+    {
+        return;
+    }
+
+    kmMat4 mv;
+    kmGLGetMatrix(KM_GL_MODELVIEW, &mv);
+
+    QuadCommand* cmd = QuadCommand::getCommandPool().generateCommand();
+    cmd->init(0,
+              _vertexZ,
+              _texture->getName(),
+              _shaderProgram,
+              _blendFunc,
+              _textureAtlas->getQuads(),
+              _textureAtlas->getTotalQuads(),
+              mv);
+    Director::getInstance()->getRenderer()->addCommand(cmd);
+    
+    _textureAtlas->removeAllQuads();
 }
 
 void Armature::onEnter()
@@ -449,8 +501,9 @@ void Armature::visit()
     {
         return;
     }
+    
     kmGLPushMatrix();
-
+    
     transform();
     sortAllChildren();
     draw();
@@ -521,9 +574,19 @@ void Armature::setParentBone(Bone *parentBone)
 {
     _parentBone = parentBone;
 
+    // refresh bone property
     for (auto& element : _boneDic)
     {
         element.second->setArmature(this);
+    }
+    
+    if(_parentBone != nullptr && _parentBone->getArmature())
+    {
+        setTextureAtlas(_parentBone->getArmature()->getTextureAtlas());
+    }
+    else
+    {
+        setTextureAtlas(nullptr);
     }
 }
 
@@ -531,6 +594,50 @@ Bone *Armature::getParentBone() const
 {
     return _parentBone;
 }
+
+void Armature::setBatchNode(BatchNode *batchNode)
+{
+    _batchNode = batchNode;
+ 
+    if (_batchNode != nullptr)
+    {
+        setTextureAtlas(_batchNode->getTextureAtlas());
+    }
+    else
+    {
+        setTextureAtlas(nullptr);
+    }
+    
+}
+
+void Armature::setTextureAtlas(cocos2d::TextureAtlas* textureAtlas)
+{
+    CC_SAFE_RELEASE_NULL(_textureAtlas);
+    
+    if(textureAtlas != nullptr)
+    {
+        CC_SAFE_RETAIN(textureAtlas);
+        _textureAtlas = textureAtlas;
+    }
+    else
+    {
+        _textureAtlas = new TextureAtlas();
+        _textureAtlas->initWithTexture(nullptr, 8);
+    }
+    
+    for(auto iterator : _boneDic)
+    {
+        auto displayList = iterator.second->getDisplayManager()->getDecorativeDisplayList();
+        for(auto display : displayList)
+        {
+            if (Skin *skin = dynamic_cast<Skin*>(display->getDisplay()))
+            {
+                skin->setTextureAtlas(_textureAtlas);
+            }
+        }
+    }
+}
+
 
 #if ENABLE_PHYSICS_BOX2D_DETECT || ENABLE_PHYSICS_CHIPMUNK_DETECT
 

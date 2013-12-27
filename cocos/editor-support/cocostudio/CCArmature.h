@@ -210,8 +210,12 @@ public:
     virtual void setVersion(float version) { _version = version; }
     virtual float getVersion() const { return _version; }
 
-    virtual void setBatchNode(BatchNode *batchNode) { _batchNode = batchNode; }
+    virtual void setBatchNode(BatchNode *batchNode);
     virtual BatchNode *getBatchNode() const { return _batchNode; }
+
+    virtual cocos2d::TextureAtlas* getTextureAtlas() { return _textureAtlas; }
+
+    virtual cocos2d::Texture2D* getTexture() { return _texture; }
 
 #if ENABLE_PHYSICS_BOX2D_DETECT
     virtual b2Fixture *getShapeList();
@@ -252,6 +256,9 @@ protected:
      */
     Bone *createBone(const std::string& boneName );
 
+    virtual void drawQuads();
+
+    virtual void setTextureAtlas(cocos2d::TextureAtlas* textureAtlas);
 protected:
     ArmatureData *_armatureData;
 
@@ -273,6 +280,9 @@ protected:
     cocos2d::Point _realAnchorPointInPoints;
 
     ArmatureAnimation *_animation;
+
+    cocos2d::TextureAtlas *_textureAtlas;
+    cocos2d::Texture2D *_texture;
 
 #if ENABLE_PHYSICS_BOX2D_DETECT
     b2Body *_body;

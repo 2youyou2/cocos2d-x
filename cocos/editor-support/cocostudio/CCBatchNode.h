@@ -59,13 +59,15 @@ public:
     /**
      *  @js NA
      */
-    void draw() override;
+    virtual void draw() override;
     
-    void setPopGroupCommand(bool pop) { _popGroupCommand = pop; }
+    virtual cocos2d::TextureAtlas* getTextureAtlas() { return _textureAtlas; }
 protected:
-    void generateGroupCommand();
+    virtual void drawQuads();
 
-    bool _popGroupCommand;
+    cocos2d::TextureAtlas *_textureAtlas;
+    cocos2d::Texture2D *_texture;
+    cocos2d::BlendFunc _blendFunc;
 };
 
 }

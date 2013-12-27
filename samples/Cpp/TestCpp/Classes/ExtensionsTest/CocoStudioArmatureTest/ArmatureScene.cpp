@@ -36,9 +36,9 @@ Layer *CreateLayer(int index)
     case TEST_PERFORMANCE:
         pLayer = new TestPerformance();
         break;
-//    case TEST_PERFORMANCE_BATCHNODE:
-//        pLayer = new TestPerformanceBatchNode();
-//        break;
+    case TEST_PERFORMANCE_BATCHNODE:
+        pLayer = new TestPerformanceBatchNode();
+        break;
     case TEST_CHANGE_ZORDER:
         pLayer = new TestChangeZorder();
         break;

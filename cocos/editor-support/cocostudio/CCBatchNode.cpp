@@ -46,6 +46,8 @@ BatchNode *BatchNode::create()
 }
 
 BatchNode::BatchNode()
+    : _textureAtlas(nullptr)
+    , _texture(nullptr)
 {
 }
 
@@ -56,7 +58,14 @@ BatchNode::~BatchNode()
 bool BatchNode::init()
 {
     bool ret = Node::init();
-    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+    
+    CC_SAFE_FREE(_textureAtlas);
+    _textureAtlas = new TextureAtlas();
+    _textureAtlas->initWithTexture(nullptr, 8);
+    
+    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
+
+    _blendFunc = BlendFunc::ALPHA_NON_PREMULTIPLIED;
 
     return ret;
 }
@@ -120,40 +129,63 @@ void BatchNode::draw()
 
     CC_NODE_DRAW_SETUP();
     
-    generateGroupCommand();
 
     for(auto object : _children)
     {
         Armature *armature = dynamic_cast<Armature *>(object);
         if (armature)
         {
-            if (_popGroupCommand)
-            {
-                generateGroupCommand();
-            }
-        
             armature->visit();
+            _texture = armature->getTexture();
         }
         else
         {
-            Director::getInstance()->getRenderer()->popGroup();
-            _popGroupCommand = true;
-            
             ((Node *)object)->visit();
         }
     }
+    
+    drawQuads();
 }
 
-void BatchNode::generateGroupCommand()
+void BatchNode::drawQuads()
 {
-    Renderer* renderer = Director::getInstance()->getRenderer();
-    GroupCommand* groupCommand = GroupCommand::getCommandPool().generateCommand();
-    groupCommand->init(0,_vertexZ);
-    renderer->addCommand(groupCommand);
+    // Optimization: Fast Dispatch
+    if( _textureAtlas->getTotalQuads() == 0 && _texture != nullptr)
+    {
+        return;
+    }
 
-    renderer->pushGroup(groupCommand->getRenderQueueID());
+    kmMat4 mv;
+    kmGLGetMatrix(KM_GL_MODELVIEW, &mv);
+
+    ssize_t size = _textureAtlas->getTotalQuads();
+    for(ssize_t i = 0; i<size; i+= Renderer::VBO_SIZE-1)
+    {
+        ssize_t count = 0;
+        if((size - i) >= Renderer::VBO_SIZE)
+        {
+            count = Renderer::VBO_SIZE - 1;
+        }
+        else
+        {
+            count = size - i;
+        }
+        
+        V3F_C4B_T2F_Quad* quad = _textureAtlas->getQuads() + i*sizeof(V3F_C4B_T2F_Quad);
+        
+        QuadCommand* cmd = QuadCommand::getCommandPool().generateCommand();
+        cmd->init(0,
+                  _vertexZ,
+                  _texture->getName(),
+                  _shaderProgram,
+                  _blendFunc,
+                  quad,
+                  count,
+                  mv);
+        Director::getInstance()->getRenderer()->addCommand(cmd);
+    }
     
-    _popGroupCommand = false;
+    _textureAtlas->removeAllQuads();
 }
 
 }
