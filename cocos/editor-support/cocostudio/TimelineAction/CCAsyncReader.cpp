@@ -56,7 +56,6 @@ void AsyncReader::readFileAsync(const std::string &path, std::function<Ref*(std:
 
     if (0 == _asyncRefCount)
     {
-        _autoReleasePool = new AutoreleasePool("AsyncReaderAutoReleasePool");
         Director::getInstance()->getScheduler()->schedule(schedule_selector(AsyncReader::loadFileAsyncCallBack), this, 0, false);
     }
 
@@ -80,10 +79,6 @@ void AsyncReader::loadFile()
 
     while (true)
     {
-        if (PoolManager::getInstance()->getCurrentPool())
-        {
-        }
-
         std::queue<AsyncStruct*> *pQueue = _asyncStructQueue;
         _asyncStructQueueMutex.lock();
         if (pQueue->empty())
@@ -168,7 +163,6 @@ void AsyncReader::loadFileAsyncCallBack(float dt)
 
         if (0 == _asyncRefCount)
         {
-            CC_SAFE_DELETE(_autoReleasePool);
             Director::getInstance()->getScheduler()->unschedule(schedule_selector(AsyncReader::loadFileAsyncCallBack), this);
         }
     }

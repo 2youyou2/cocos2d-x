@@ -182,19 +182,40 @@ void TestTimelineAction::onEnter()
 {
     TimelineActionTestLayer::onEnter();
 
-    Node* node = NodeReader::getInstance()->createNode("TimelineAction/boy_1.ExportJson");
-    TimelineAction* action = TimelineActionCache::getInstance()->createAction("TimelineAction/boy_1.ExportJson");
+    Sprite::create("Hello.png");
 
-    node->runAction(action);
-    action->gotoFrameAndPlay(0, 60, true);
-
-    node->setScale(0.4f);
-    node->setPosition(0,0);
-
-    addChild(node);
+    for(int i=0; i<100; i++)
+    {
+        AsyncReader::getInstance()->readFileAsync("TimelineAction/boy_1.ExportJson", CC_CALLBACK_1(TestTimelineAction::loadingRef, this), CC_CALLBACK_1(TestTimelineAction::loadedRef, this));
+    }
 }
 
 std::string TestTimelineAction::title() const
 {
     return "Test AnimationElement";
+}
+
+cocos2d::Ref* TestTimelineAction::loadingRef(std::string filename)
+{
+    //return NodeCache::getInstance()->createNode(filename);
+    CCLOG("loading : %s", filename.c_str());
+    return Sprite::create("Hello.png");
+}
+
+void TestTimelineAction::loadedRef(cocos2d::Ref* ref)
+{
+    if(cocos2d::Node* node = dynamic_cast<cocos2d::Node*>(ref))
+    {
+        CCLOG("left %d resource to load.", AsyncReader::getInstance()->getRefCount());
+
+//         TimelineAction* action = TimelineActionCache::getInstance()->createAction("TimelineAction/boy_1.ExportJson");
+// 
+//         node->runAction(action);
+//         action->gotoFrameAndPlay(0, 60, true);
+// 
+//         node->setScale(0.4f);
+//         node->setPosition(-200/*+i*5*/,0);
+
+        addChild(node);
+    }
 }
