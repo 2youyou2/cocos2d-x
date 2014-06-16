@@ -53,6 +53,9 @@ class TestActionTimeline : public ActionTimelineTestLayer
 public:
     virtual void onEnter();
     virtual std::string title() const override;
+
+    cocos2d::Ref* loadingRef(std::string filename);
+    void loadedRef(cocos2d::Ref* ref);
 };
 
 class TestAsyncReader : public ActionTimelineTestLayer
