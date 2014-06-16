@@ -3,7 +3,7 @@
 
 using namespace cocos2d;
 
-namespace cocostudio {
+NS_TIMELINE_BEGIN
 
 static AsyncReader* _sharedAsyncReader = nullptr;
 
@@ -29,7 +29,6 @@ AsyncReader::AsyncReader()
     , _refInfoQueue(nullptr)
     , _needQuit(false)
     , _asyncRefCount(0)
-    ,_autoReleasePool(nullptr)
 {
 }
 
@@ -48,7 +47,6 @@ void AsyncReader::readFileAsync(const std::string &path, std::function<Ref*(std:
         _asyncStructQueue = new std::queue<AsyncStruct*>();
         _refInfoQueue   = new std::deque<RefInfo*>();        
 
-        // create a new thread to load images
         _loadingThread = new std::thread(&AsyncReader::loadFile, this);
 
         _needQuit = false;
@@ -56,7 +54,6 @@ void AsyncReader::readFileAsync(const std::string &path, std::function<Ref*(std:
 
     if (0 == _asyncRefCount)
     {
-        _autoReleasePool = new AutoreleasePool("AsyncReaderAutoReleasePool");
         Director::getInstance()->getScheduler()->schedule(schedule_selector(AsyncReader::loadFileAsyncCallBack), this, 0, false);
     }
 
@@ -80,10 +77,6 @@ void AsyncReader::loadFile()
 
     while (true)
     {
-        if (PoolManager::getInstance()->getCurrentPool())
-        {
-        }
-
         std::queue<AsyncStruct*> *pQueue = _asyncStructQueue;
         _asyncStructQueueMutex.lock();
         if (pQueue->empty())
@@ -137,7 +130,6 @@ void AsyncReader::loadFile()
 
 void AsyncReader::loadFileAsyncCallBack(float dt)
 {
-    // the image is generated in loading thread
     std::deque<RefInfo*> *refsQueue = _refInfoQueue;
 
     _refInfoMutex.lock();
@@ -168,10 +160,9 @@ void AsyncReader::loadFileAsyncCallBack(float dt)
 
         if (0 == _asyncRefCount)
         {
-            CC_SAFE_DELETE(_autoReleasePool);
             Director::getInstance()->getScheduler()->unschedule(schedule_selector(AsyncReader::loadFileAsyncCallBack), this);
         }
     }
 }
 
-}
+NS_TIMELINE_END

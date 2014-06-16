@@ -26,8 +26,9 @@ THE SOFTWARE.
 #define __CCASYNCREADER_H__
 
 #include "cocos2d.h"
+#include "CCTimelineMacro.h"
 
-namespace cocostudio {
+NS_TIMELINE_BEGIN
 
 class AsyncReader : cocos2d::Ref
 {
@@ -75,13 +76,11 @@ protected:
     std::mutex _sleepMutex;
     std::condition_variable _sleepCondition;
 
-    cocos2d::AutoreleasePool* _autoReleasePool;
-
     bool _needQuit;
 
     int _asyncRefCount;
 };
 
-}
+NS_TIMELINE_END
 
 #endif /*__CCASYNCREADER_H__*/

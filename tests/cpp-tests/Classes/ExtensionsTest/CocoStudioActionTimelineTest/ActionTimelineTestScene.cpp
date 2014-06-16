@@ -22,6 +22,9 @@ Layer *CreateAnimationLayer(int index)
     case TEST_ANIMATIONELEMENT:
         pLayer = new TestActionTimeline();
         break;
+    case TEST_ASYNC_READER:
+        pLayer = new TestAsyncReader();
+        break;
     default:
         break;
     }
@@ -178,6 +181,7 @@ void ActionTimelineTestLayer::backCallback(Ref *pSender)
     s->release();
 }
 
+// TestActionTimeline
 void TestActionTimeline::onEnter()
 {
     ActionTimelineTestLayer::onEnter();
@@ -199,4 +203,35 @@ void TestActionTimeline::onEnter()
 std::string TestActionTimeline::title() const
 {
     return "Test ActionTimeline";
+}
+
+
+// TestAsyncReader
+void TestAsyncReader::onEnter()
+{
+    ActionTimelineTestLayer::onEnter();
+
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("armature/Cowboy0.plist", "armature/Cowboy0.png");
+    Sprite::create("Hello.png");
+
+    for (int i=0; i<100; i++)
+    {
+        AsyncReader::getInstance()->readFileAsync("", CC_CALLBACK_1(TestAsyncReader::loading, this), CC_CALLBACK_1(TestAsyncReader::loaded, this));
+    }
+}
+
+std::string TestAsyncReader::title() const
+{
+    return "Test ActionTimeline";
+}
+
+cocos2d::Ref* TestAsyncReader::loading(std::string file)
+{
+    return Sprite::create("Hello.png");
+}
+
+void TestAsyncReader::loaded(cocos2d::Ref* ref)
+{
+    if(Node* node = dynamic_cast<Node*>(ref))
+        addChild(node);
 }

@@ -22,6 +22,7 @@ public:
 
 enum {
     TEST_ANIMATIONELEMENT = 0,
+    TEST_ASYNC_READER,
 
     TEST_ANIMATION_LAYER_COUNT
 };
@@ -52,6 +53,16 @@ class TestActionTimeline : public ActionTimelineTestLayer
 public:
     virtual void onEnter();
     virtual std::string title() const override;
+};
+
+class TestAsyncReader : public ActionTimelineTestLayer
+{
+public:
+    virtual void onEnter();
+    virtual std::string title() const override;
+
+    cocos2d::Ref* loading(std::string file);
+    void loaded(cocos2d::Ref* node);
 };
 
 #endif  // __ANIMATION_SCENE_H__
