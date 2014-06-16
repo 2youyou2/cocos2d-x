@@ -27,19 +27,19 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 #include "cocostudio/DictionaryHelper.h"
+#include "CCTimelineMacro.h"
 
-#include "CCTimeLine.h"
+NS_TIMELINE_BEGIN
 
-namespace cocostudio {
-namespace timeline{
-    
-class TimelineAction;
+class ActionTimeline;
+class Timeline;
+class Frame;
 
-class TimelineActionCache
+class ActionTimelineCache
 {
 public:
     /** Gets the singleton */
-    static TimelineActionCache* getInstance();
+    static ActionTimelineCache* getInstance();
 
     /** Destroys the singleton */
     static void destroyInstance();
@@ -52,10 +52,10 @@ public:
     void removeAction(const std::string& fileName);
 
     /** Clone a action with the specified name from the container. */
-    TimelineAction* createAction(const std::string& fileName);
+    ActionTimeline* createAction(const std::string& fileName);
 
-    TimelineAction* loadAnimationActionWithFile(const std::string& fileName);
-    TimelineAction* loadAnimationActionWithContent(const std::string&fileName, const std::string& content);
+    ActionTimeline* loadAnimationActionWithFile(const std::string& fileName);
+    ActionTimeline* loadAnimationActionWithContent(const std::string&fileName, const std::string& content);
 protected:
 
     Timeline* loadTimeline(const rapidjson::Value& json);
@@ -79,11 +79,9 @@ protected:
     typedef std::pair<std::string, FrameCreateFunc> Pair;
 
     std::unordered_map<std::string, FrameCreateFunc> _funcs;
-    cocos2d::Map<std::string, TimelineAction*> _animationActions;
+    cocos2d::Map<std::string, ActionTimeline*> _animationActions;
 };
 
-}
-}
-
+NS_TIMELINE_END
 
 #endif /*__CCTIMELINE_ACTION_CACHE_H__*/

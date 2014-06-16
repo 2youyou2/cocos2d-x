@@ -23,13 +23,11 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "CCTimeLine.h"
-#include "CCTimelineAction.h"
-#include "CCFrame.h"
+#include "CCActionTimeline.h"
 
-using namespace cocos2d;
+USING_NS_CC;
 
-namespace cocostudio {
-namespace timeline{
+NS_TIMELINE_BEGIN
 
 Timeline* Timeline::create()
 {
@@ -50,7 +48,7 @@ Timeline::Timeline()
     , _toIndex(0)
     , _betweenDuration(0)
     , _actionTag(0)
-    , _timelineAction(nullptr)
+    , _ActionTimeline(nullptr)
     , _node(nullptr)
 {
 }
@@ -85,7 +83,7 @@ Timeline* Timeline::clone()
     for (auto frame : _frames)
     {
         Frame* newFrame = frame->clone();
-        timeline->getFrames().pushBack(newFrame);
+        timeline->addFrame(newFrame);
     }
 
     return timeline;
@@ -109,7 +107,7 @@ void Timeline::removeFrame(Frame* frame)
     frame->setTimeline(NULL);
 }
 
-void Timeline::setNode(cocos2d::Node* node)
+void Timeline::setNode(Node* node)
 {
     for (auto frame : _frames)
     {
@@ -117,7 +115,7 @@ void Timeline::setNode(cocos2d::Node* node)
     }
 }
 
-cocos2d::Node* Timeline::getNode()
+Node* Timeline::getNode() const
 {
     return _node;
 }
@@ -248,5 +246,4 @@ void Timeline::updateCurrentKeyFrame(int frameIndex)
     }
 }
 
-}
-}
+NS_TIMELINE_END

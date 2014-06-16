@@ -25,15 +25,14 @@ THE SOFTWARE.
 #ifndef __CCTIMELINE_H__
 #define __CCTIMELINE_H__
 
-#include "cocos2d.h"
+#include "CCFrame.h"
+#include "CCTimelineMacro.h"
 
-namespace cocostudio {
-namespace timeline{
+NS_TIMELINE_BEGIN
 
-class Frame;
-class TimelineAction;
+class ActionTimeline;
 
-class Timeline : public cocos2d::Ref
+class  Timeline : public cocos2d::Ref
 {
 public:
     static Timeline* create();
@@ -44,7 +43,6 @@ public:
     virtual void gotoFrame(int frameIndex);
     virtual void stepToFrame(int frameIndex);
 
-    virtual cocos2d::Vector<Frame*>& getFrames() { return _frames; }
     virtual const cocos2d::Vector<Frame*>& getFrames() const { return _frames; }
 
     virtual void addFrame(Frame* frame);
@@ -52,16 +50,15 @@ public:
     virtual void removeFrame(Frame* frame);
 
     virtual void setActionTag(int tag) { _actionTag = tag; }
-    virtual int  getActionTag() { return _actionTag; }
+    virtual int  getActionTag() const { return _actionTag; }
 
     virtual void setNode(cocos2d::Node* node);
-    virtual cocos2d::Node* getNode();
+    virtual cocos2d::Node* getNode() const;
 
-    virtual void setTimelineAction(TimelineAction* action) { _timelineAction = action; }
-    virtual TimelineAction* getTimelineAction() { return _timelineAction; }
+    virtual void setActionTimeline(ActionTimeline* action) { _ActionTimeline = action; }
+    virtual ActionTimeline* getActionTimeline() const { return _ActionTimeline; }
 
     virtual Timeline* clone();
-
 
 protected:
     virtual void apply(int frameIndex);
@@ -78,12 +75,11 @@ protected:
     int _betweenDuration;
     int _actionTag;
 
-    TimelineAction*  _timelineAction;
+    ActionTimeline*  _ActionTimeline;
     cocos2d::Node* _node;
 };
 
-}
-}
+NS_TIMELINE_END
 
 
 #endif /*__CCTIMELINE_H__*/

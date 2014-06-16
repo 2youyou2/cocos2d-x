@@ -25,27 +25,28 @@ THE SOFTWARE.
 #ifndef __CCFRAME_H__
 #define __CCFRAME_H__
 
-#include "CCTimeLine.h"
+#include "cocos2d.h"
+#include "CCTimelineMacro.h"
 
-namespace cocostudio {
-namespace timeline{
+NS_TIMELINE_BEGIN
 
+class Timeline;
 
-class Frame : public cocos2d::Ref
+class  Frame : public cocos2d::Ref
 {
 public:
 
     virtual void setFrameIndex(unsigned int frameIndex) { _frameIndex = frameIndex; }
-    virtual unsigned int getFrameIndex()const { return _frameIndex; }
+    virtual unsigned int getFrameIndex() const { return _frameIndex; }
 
     virtual void setTimeline(Timeline* timeline) { _timeline = timeline; }
-    virtual Timeline* getTimeline() { return _timeline; }
+    virtual Timeline* getTimeline() const { return _timeline; }
 
     virtual void setNode(cocos2d::Node* node) { _node = node; }
     virtual cocos2d::Node* getTimelineNode() const { return _node; }
 
     virtual void setTween(bool tween) { _tween = tween; }
-    virtual bool isTween()const { return _tween; }
+    virtual bool isTween() const { return _tween; }
 
     virtual void onEnter(Frame *nextFrame) = 0;
     virtual void apply(float percent) {}
@@ -55,9 +56,9 @@ protected:
     Frame();
     virtual ~Frame();
 
-    void cloneProperty(Frame* frame);
+    virtual void emitEvent();
+    virtual void cloneProperty(Frame* frame);
 protected:
-    friend class Timeline;
 
     unsigned int    _frameIndex;
     bool            _tween;
@@ -67,7 +68,7 @@ protected:
 };
 
 
-class VisibleFrame : public Frame
+class  VisibleFrame : public Frame
 {
 public:
     static VisibleFrame* create();
@@ -85,7 +86,7 @@ protected:
 };
 
 
-class TextureFrame : public Frame
+class  TextureFrame : public Frame
 {
 public:
     static TextureFrame* create();
@@ -97,15 +98,15 @@ public:
     virtual void onEnter(Frame *nextFrame) override;
     virtual Frame* clone() override;
 
-    inline void setTexture(std::string texture) { _texture = texture;}
-    inline std::string getTexture() const { return _texture; }
+    inline void setTextureName(std::string textureName) { _textureName = textureName;}
+    inline std::string getTextureName() const { return _textureName; }
 
 protected:
     cocos2d::Sprite* _sprite;
-    std::string _texture;
+    std::string _textureName;
 };
 
-class RotationFrame : public Frame
+class  RotationFrame : public Frame
 {
 public:
     static RotationFrame* create();
@@ -124,7 +125,7 @@ protected:
     float _betwennRotation;
 };
 
-class SkewFrame : public Frame
+class  SkewFrame : public Frame
 {
 public:
     static SkewFrame* create();
@@ -149,7 +150,7 @@ protected:
 };
 
 
-class RotationSkewFrame : public SkewFrame
+class  RotationSkewFrame : public SkewFrame
 {
 public:
     static RotationSkewFrame* create();
@@ -162,7 +163,7 @@ public:
 };
 
 
-class PositionFrame : public Frame
+class  PositionFrame : public Frame
 {
 public:
     static PositionFrame* create();
@@ -179,8 +180,8 @@ public:
     inline void setX(float x) { _position.x = x; }
     inline void setY(float y) { _position.y = y; }
 
-    inline float getX() { return _position.x; }
-    inline float getY() { return _position.y; }
+    inline float getX() const { return _position.x; }
+    inline float getY() const { return _position.y; }
 protected:
     cocos2d::Point _position;
     float _betweenX;
@@ -188,7 +189,7 @@ protected:
 };
 
 
-class ScaleFrame : public Frame
+class  ScaleFrame : public Frame
 {
 public:
     static ScaleFrame* create();
@@ -215,7 +216,7 @@ protected:
 };
 
 
-class AnchorPointFrame : public Frame
+class  AnchorPointFrame : public Frame
 {
 public:
     static AnchorPointFrame* create();
@@ -241,7 +242,7 @@ enum InnerActionType
     SingleFrame
 };
 
-class InnerActionFrame : public Frame
+class  InnerActionFrame : public Frame
 {
 public:
     static InnerActionFrame* create();
@@ -262,7 +263,7 @@ protected:
 };
 
 
-class ColorFrame : public Frame
+class  ColorFrame : public Frame
 {
 public:
     static ColorFrame* create();
@@ -289,7 +290,7 @@ protected:
 };
 
 
-class EventFrame : public Frame
+class  EventFrame : public Frame
 {
 public:
     static EventFrame* create();
@@ -306,7 +307,7 @@ protected:
     std::string _event;
 };
 
-class ZOrderFrame : public Frame
+class  ZOrderFrame : public Frame
 {
 public:
     static ZOrderFrame* create();
@@ -323,8 +324,7 @@ protected:
     int _zorder;
 };
 
-}
-}
+NS_TIMELINE_END
 
 
 #endif /*__CCFRAME_H__*/

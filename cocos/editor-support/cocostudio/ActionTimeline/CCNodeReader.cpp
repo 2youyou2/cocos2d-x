@@ -23,13 +23,13 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "CCNodeReader.h"
-#include "CCTimelineActionCache.h"
-#include "CCFrame.h"
+#include "CCActionTimelineCache.h"
+#include "CCActionTimeline.h"
 
 #include "../CCSGUIReader.h"
 
 using namespace cocos2d;
-using namespace cocos2d::ui;
+using namespace ui;
 
 namespace cocostudio {
 namespace timeline{
@@ -40,7 +40,7 @@ static const char* ClassName_SubGraph = "SubGraph";
 static const char* ClassName_Sprite   = "Sprite";
 static const char* ClassName_Particle = "Particle";
 
-static const char* ClassName_Panel     = "Panel";
+static const char* ClassName_Panel      = "Panel";
 static const char* ClassName_Button     = "Button";
 static const char* ClassName_CheckBox   = "CheckBox";
 static const char* ClassName_ImageView  = "ImageView";
@@ -84,36 +84,14 @@ static const char* ALPHA            = "opacity";
 static const char* RED              = "colorR";
 static const char* GREEN            = "colorG";
 static const char* BLUE             = "colorB";
+static const char* ZORDER           = "ZOrder";
 static const char* PARTICLE_NUM     = "particleNum";
+static const char* FLIPX            = "flipX";
+static const char* FLIPY            = "flipY";
+static const char* VISIBLE          = "visible";
 
 static const char* TEXTURES     = "textures";
 static const char* TEXTURES_PNG = "texturesPng";
-
-// TimelineActionData
-TimelineActionData* TimelineActionData::create(int actionTag)
-{
-    TimelineActionData * ret = new TimelineActionData();
-    if (ret && ret->init(actionTag))
-    {
-        ret->autorelease();
-    }
-    else
-    {
-        CC_SAFE_DELETE(ret);
-    }
-    return ret;
-}
-
-TimelineActionData::TimelineActionData()
-    : _actionTag(0)
-{
-}
-
-bool TimelineActionData::init(int actionTag)
-{
-    _actionTag = actionTag;
-    return true;
-}
 
 
 // NodeReader
@@ -173,7 +151,7 @@ void NodeReader::init()
     _guiReader = new WidgetPropertiesReader0300();
 }
 
-cocos2d::Node* NodeReader::createNode(const std::string& filename)
+Node* NodeReader::createNode(const std::string& filename)
 {
     if(_recordJsonPath)
     {
@@ -188,25 +166,25 @@ cocos2d::Node* NodeReader::createNode(const std::string& filename)
         _jsonPath = "";
     }
 
-    cocos2d::Node* node = loadNodeWithFile(filename);
+    Node* node = loadNodeWithFile(filename);
 
     return node;
 }
 
-cocos2d::Node* NodeReader::loadNodeWithFile(const std::string& fileName)
+Node* NodeReader::loadNodeWithFile(const std::string& fileName)
 {
     // Read content from file
     std::string contentStr = FileUtils::getInstance()->getStringFromFile(fileName);
 
-    cocos2d::Node* node = loadNodeWithContent(contentStr);
+    Node* node = loadNodeWithContent(contentStr);
 
     // Load animation data from file
-    TimelineActionCache::getInstance()->loadAnimationActionWithContent(fileName, contentStr);
+    ActionTimelineCache::getInstance()->loadAnimationActionWithContent(fileName, contentStr);
 
     return node;
 }
 
-cocos2d::Node* NodeReader::loadNodeWithContent(const std::string& content)
+Node* NodeReader::loadNodeWithContent(const std::string& content)
 {
     rapidjson::Document doc;
     doc.Parse<0>(content.c_str());
@@ -229,15 +207,15 @@ cocos2d::Node* NodeReader::loadNodeWithContent(const std::string& content)
 
     // decode node tree
     const rapidjson::Value& subJson = DICTOOL->getSubDictionary_json(doc, NODE);
-    cocos2d::Node* root = loadNode(subJson);
+    Node* root = loadNode(subJson);
     root->release();
 
     return root;
 }
 
-cocos2d::Node* NodeReader::loadNode(const rapidjson::Value& json)
+Node* NodeReader::loadNode(const rapidjson::Value& json)
 {
-    cocos2d::Node* node = nullptr;
+    Node* node = nullptr;
     std::string nodeType = DICTOOL->getStringValue_json(json, CLASSNAME);
 
     NodeCreateFunc func = _funcs.at(nodeType);
@@ -253,7 +231,7 @@ cocos2d::Node* NodeReader::loadNode(const rapidjson::Value& json)
         for (int i = 0; i<length; i++)
         {
             const rapidjson::Value &dic = DICTOOL->getSubDictionary_json(json, CHILDREN, i);
-            cocos2d::Node* child = loadNode(dic);
+            Node* child = loadNode(dic);
             if (child) 
             {
                 node->addChild(child);
@@ -269,7 +247,7 @@ cocos2d::Node* NodeReader::loadNode(const rapidjson::Value& json)
     return node;
 }
 
-void NodeReader::initNode(cocos2d::Node* node, const rapidjson::Value& json)
+void NodeReader::initNode(Node* node, const rapidjson::Value& json)
 {
     float width         = DICTOOL->getFloatValue_json(json, WIDTH);
     float height        = DICTOOL->getFloatValue_json(json, HEIGHT);
@@ -288,8 +266,10 @@ void NodeReader::initNode(cocos2d::Node* node, const rapidjson::Value& json)
     GLubyte red         = (GLubyte)DICTOOL->getIntValue_json(json, RED, 255);
     GLubyte green       = (GLubyte)DICTOOL->getIntValue_json(json, GREEN, 255);
     GLubyte blue        = (GLubyte)DICTOOL->getIntValue_json(json, BLUE, 255);
+    int zorder		    = DICTOOL->getIntValue_json(json, ZORDER);
     int tag             = DICTOOL->getIntValue_json(json, TAG);
     int actionTag       = DICTOOL->getIntValue_json(json, ACTION_TAG);
+    bool visible        = DICTOOL->getBooleanValue_json(json, VISIBLE);
 
     if(x != 0 || y != 0)
         node->setPosition(Point(x, y));
@@ -311,7 +291,10 @@ void NodeReader::initNode(cocos2d::Node* node, const rapidjson::Value& json)
         node->setAnchorPoint(Point(anchorx, anchory));
     if(width != 0 || height != 0)
         node->setContentSize(Size(width, height));
-
+    if(zorder != 0)
+        node->setZOrder(zorder);
+    if(visible != true)
+        node->setVisible(visible);
 
     if(alpha != 255)
     {
@@ -326,7 +309,7 @@ void NodeReader::initNode(cocos2d::Node* node, const rapidjson::Value& json)
 
 
     node->setTag(tag);
-    node->setUserObject(TimelineActionData::create(actionTag));
+    node->setUserObject(ActionTimelineData::create(actionTag));
 }
 
 Node* NodeReader::loadSimpleNode(const rapidjson::Value& json)
@@ -338,7 +321,7 @@ Node* NodeReader::loadSimpleNode(const rapidjson::Value& json)
     return node;
 }
 
-cocos2d::Node* NodeReader::loadSubGraph(const rapidjson::Value& json)
+Node* NodeReader::loadSubGraph(const rapidjson::Value& json)
 {
     const char* filePath = DICTOOL->getStringValue_json(json, FILE_PATH);
 
@@ -394,6 +377,14 @@ Node* NodeReader::loadSprite(const rapidjson::Value& json)
 
     initNode(sprite, json);
 
+    bool flipX          = DICTOOL->getBooleanValue_json(json, FLIPX);
+    bool flipY          = DICTOOL->getBooleanValue_json(json, FLIPY);
+
+    if(flipX != false)
+        sprite->setFlipX(flipX);
+    if(flipY != false)
+        sprite->setFlipY(flipY);
+
     return sprite;
 }
 
@@ -411,7 +402,7 @@ Node* NodeReader::loadParticle(const rapidjson::Value& json)
     return particle;
 }
 
-cocos2d::Node* NodeReader::loadWidget(const rapidjson::Value& json)
+Node* NodeReader::loadWidget(const rapidjson::Value& json)
 {
     const char* str = DICTOOL->getStringValue_json(json, CLASSNAME);
     if(str == nullptr)
@@ -453,7 +444,10 @@ cocos2d::Node* NodeReader::loadWidget(const rapidjson::Value& json)
     WidgetReaderProtocol* reader = dynamic_cast<WidgetReaderProtocol*>(ObjectFactory::getInstance()->createObject(readerName));
 
     _guiReader->setPropsForAllWidgetFromJsonDictionary(reader, widget, json);
-
+    
+    int actionTag = DICTOOL->getIntValue_json(json, ACTION_TAG);
+    widget->setUserObject(ActionTimelineData::create(actionTag));
+    
     return widget;
 }
 

@@ -24,12 +24,11 @@ THE SOFTWARE.
 
 #include "CCFrame.h"
 #include "CCTimeLine.h"
-#include "CCTimelineAction.h"
+#include "CCActionTimeline.h"
 
-using namespace cocos2d;
+USING_NS_CC;
 
-namespace cocostudio {
-namespace timeline{
+NS_TIMELINE_BEGIN
 
 // Frame
 Frame::Frame()
@@ -42,6 +41,14 @@ Frame::Frame()
 
 Frame::~Frame()
 {
+}
+
+void Frame::emitEvent()
+{
+    if (_timeline)
+    {
+        _timeline->getActionTimeline()->emitFrameEvent(this);
+    }
 }
 
 void Frame::cloneProperty(Frame* frame)
@@ -101,11 +108,11 @@ TextureFrame* TextureFrame::create()
 }
 
 TextureFrame::TextureFrame()
-    : _texture("")
+    : _textureName("")
 {
 }
 
-void TextureFrame::setNode(cocos2d::Node* node)
+void TextureFrame::setNode(Node* node)
 {
     Frame::setNode(node);
 
@@ -116,12 +123,12 @@ void TextureFrame::onEnter(Frame *nextFrame)
 {
     if(_sprite)
     {
-        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(_texture);
+        SpriteFrame* spriteFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(_textureName);
 
         if(spriteFrame != nullptr)
             _sprite->setSpriteFrame(spriteFrame);
         else
-            _sprite->setTexture(_texture);
+            _sprite->setTexture(_textureName);
     }
 }
 
@@ -129,7 +136,7 @@ void TextureFrame::onEnter(Frame *nextFrame)
 Frame* TextureFrame::clone()
 {
     TextureFrame* frame = TextureFrame::create();
-    frame->setTexture(_texture);
+    frame->setTextureName(_textureName);
 
     frame->cloneProperty(this);
 
@@ -526,7 +533,7 @@ void ColorFrame::onEnter(Frame *nextFrame)
     {
         _betweenAlpha = static_cast<ColorFrame*>(nextFrame)->_alpha - _alpha;
 
-        const cocos2d::Color3B& color = static_cast<ColorFrame*>(nextFrame)->_color;
+        const Color3B& color = static_cast<ColorFrame*>(nextFrame)->_color;
         _betweenRed   = color.r - _color.r;
         _betweenGreen = color.g - _color.g;
         _betweenBlue  = color.b - _color.b;
@@ -542,7 +549,7 @@ void ColorFrame::apply(float percent)
     {
         GLubyte alpha = _alpha + _betweenAlpha * percent;
 
-        cocos2d::Color3B color;
+        Color3B color;
         color.r = _color.r+ _betweenRed   * percent;
         color.g = _color.g+ _betweenGreen * percent;
         color.b = _color.b+ _betweenBlue  * percent;
@@ -584,10 +591,7 @@ EventFrame::EventFrame()
 
 void EventFrame::onEnter(Frame *nextFrame)
 {
-    if (_timeline)
-    {
-        _timeline->getTimelineAction()->emitFrameEvent(this);
-    }
+    emitEvent();
 }
 
 
@@ -637,5 +641,4 @@ Frame* ZOrderFrame::clone()
     return frame;
 }
 
-}
-}
+NS_TIMELINE_END

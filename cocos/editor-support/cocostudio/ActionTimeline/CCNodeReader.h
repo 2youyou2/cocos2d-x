@@ -25,29 +25,14 @@ THE SOFTWARE.
 #ifndef __CC_NODE_CACHE_H__
 #define __CC_NODE_CACHE_H__
 
-#include "CCTimeLine.h"
 #include "cocostudio/DictionaryHelper.h"
-
+#include "cocos2d.h"
 
 namespace cocostudio {
 
 class WidgetPropertiesReader0300;
 
 namespace timeline{
-
-class TimelineActionData : public cocos2d::Ref
-{
-public:
-    static TimelineActionData* create(int actionTag);
-
-    virtual void setActionTag(int actionTag) { _actionTag = actionTag; }
-    virtual int getActionTag() { return _actionTag; }
-protected:
-    TimelineActionData();
-    virtual bool init(int actionTag);
-
-    int _actionTag;
-};
 
 class NodeReader
 {
@@ -66,10 +51,10 @@ public:
     cocos2d::Node* loadNodeWithContent(const std::string& content);
 
     void setRecordJsonPath(bool record) { _recordJsonPath = record; }
-    bool isRecordJsonPath() { return _recordJsonPath; }
+    bool isRecordJsonPath() const { return _recordJsonPath; }
 
     void setJsonPath(std::string jsonPath) { _jsonPath = jsonPath; }
-    std::string getJsonPath() { return _jsonPath; }
+    std::string getJsonPath() const { return _jsonPath; }
 
 protected:
 

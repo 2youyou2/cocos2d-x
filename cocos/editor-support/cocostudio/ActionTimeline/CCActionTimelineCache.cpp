@@ -22,10 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCTimelineActionCache.h"
-#include "CCTimelineAction.h"
-#include "CCFrame.h"
+#include "CCActionTimelineCache.h"
 #include "CCNodeReader.h"
+#include "CCFrame.h"
+#include "CCTimeLine.h"
+#include "CCActionTimeline.h"
 
 using namespace cocos2d;
 
@@ -67,48 +68,48 @@ static const char* BLUE             = "blue";
 static const char* Value            = "value";
 
 
-static TimelineActionCache* _sharedActionCache = nullptr;
+static ActionTimelineCache* _sharedActionCache = nullptr;
 
-TimelineActionCache* TimelineActionCache::getInstance()
+ActionTimelineCache* ActionTimelineCache::getInstance()
 {
     if (! _sharedActionCache)
     {
-        _sharedActionCache = new TimelineActionCache();
+        _sharedActionCache = new ActionTimelineCache();
         _sharedActionCache->init();
     }
 
     return _sharedActionCache;
 }
 
-void TimelineActionCache::destroyInstance()
+void ActionTimelineCache::destroyInstance()
 {
     CC_SAFE_DELETE(_sharedActionCache);
 }
 
-void TimelineActionCache::purge()
+void ActionTimelineCache::purge()
 {
     _animationActions.clear();
 }
 
-void TimelineActionCache::init()
+void ActionTimelineCache::init()
 {
     using namespace std::placeholders;
-    _funcs.insert(Pair(FrameType_VisibleFrame,      std::bind(&TimelineActionCache::loadVisibleFrame,      this, _1)));
-    _funcs.insert(Pair(FrameType_PositionFrame,     std::bind(&TimelineActionCache::loadPositionFrame,     this, _1)));
-    _funcs.insert(Pair(FrameType_ScaleFrame,        std::bind(&TimelineActionCache::loadScaleFrame,        this, _1)));
-    _funcs.insert(Pair(FrameType_RotationFrame,     std::bind(&TimelineActionCache::loadRotationFrame,     this, _1)));
-    _funcs.insert(Pair(FrameType_SkewFrame,         std::bind(&TimelineActionCache::loadSkewFrame,         this, _1)));
-    _funcs.insert(Pair(FrameType_RotationSkewFrame, std::bind(&TimelineActionCache::loadRotationSkewFrame, this, _1)));
-    _funcs.insert(Pair(FrameType_AnchorFrame,       std::bind(&TimelineActionCache::loadAnchorPointFrame,  this, _1)));
-    _funcs.insert(Pair(FrameType_InnerActionFrame,  std::bind(&TimelineActionCache::loadInnerActionFrame,  this, _1)));
-    _funcs.insert(Pair(FrameType_ColorFrame,        std::bind(&TimelineActionCache::loadColorFrame,        this, _1)));
-    _funcs.insert(Pair(FrameType_TextureFrame,      std::bind(&TimelineActionCache::loadTextureFrame,      this, _1)));
-    _funcs.insert(Pair(FrameType_EventFrame,        std::bind(&TimelineActionCache::loadEventFrame,        this, _1)));
-    _funcs.insert(Pair(FrameType_ZOrderFrame,       std::bind(&TimelineActionCache::loadZOrderFrame,       this, _1)));
+    _funcs.insert(Pair(FrameType_VisibleFrame,      std::bind(&ActionTimelineCache::loadVisibleFrame,      this, _1)));
+    _funcs.insert(Pair(FrameType_PositionFrame,     std::bind(&ActionTimelineCache::loadPositionFrame,     this, _1)));
+    _funcs.insert(Pair(FrameType_ScaleFrame,        std::bind(&ActionTimelineCache::loadScaleFrame,        this, _1)));
+    _funcs.insert(Pair(FrameType_RotationFrame,     std::bind(&ActionTimelineCache::loadRotationFrame,     this, _1)));
+    _funcs.insert(Pair(FrameType_SkewFrame,         std::bind(&ActionTimelineCache::loadSkewFrame,         this, _1)));
+    _funcs.insert(Pair(FrameType_RotationSkewFrame, std::bind(&ActionTimelineCache::loadRotationSkewFrame, this, _1)));
+    _funcs.insert(Pair(FrameType_AnchorFrame,       std::bind(&ActionTimelineCache::loadAnchorPointFrame,  this, _1)));
+    _funcs.insert(Pair(FrameType_InnerActionFrame,  std::bind(&ActionTimelineCache::loadInnerActionFrame,  this, _1)));
+    _funcs.insert(Pair(FrameType_ColorFrame,        std::bind(&ActionTimelineCache::loadColorFrame,        this, _1)));
+    _funcs.insert(Pair(FrameType_TextureFrame,      std::bind(&ActionTimelineCache::loadTextureFrame,      this, _1)));
+    _funcs.insert(Pair(FrameType_EventFrame,        std::bind(&ActionTimelineCache::loadEventFrame,        this, _1)));
+    _funcs.insert(Pair(FrameType_ZOrderFrame,       std::bind(&ActionTimelineCache::loadZOrderFrame,       this, _1)));
 
 }
 
-void TimelineActionCache::removeAction(const std::string& fileName)
+void ActionTimelineCache::removeAction(const std::string& fileName)
 {
     if (_animationActions.find(fileName) != _animationActions.end())
     {
@@ -116,9 +117,9 @@ void TimelineActionCache::removeAction(const std::string& fileName)
     }
 }
 
-TimelineAction* TimelineActionCache::createAction(const std::string& fileName)
+ActionTimeline* ActionTimelineCache::createAction(const std::string& fileName)
 {
-    TimelineAction* action = _animationActions.at(fileName);
+    ActionTimeline* action = _animationActions.at(fileName);
     if (action == nullptr)
     {
         action = loadAnimationActionWithFile(fileName);
@@ -126,7 +127,7 @@ TimelineAction* TimelineActionCache::createAction(const std::string& fileName)
     return action->clone();
 }
 
-TimelineAction* TimelineActionCache::loadAnimationActionWithFile(const std::string& fileName)
+ActionTimeline* ActionTimelineCache::loadAnimationActionWithFile(const std::string& fileName)
 {
     // Read content from file
     std::string fullPath    = CCFileUtils::getInstance()->fullPathForFilename(fileName);
@@ -135,10 +136,10 @@ TimelineAction* TimelineActionCache::loadAnimationActionWithFile(const std::stri
     return loadAnimationActionWithContent(fileName, contentStr);
 }
 
-TimelineAction* TimelineActionCache::loadAnimationActionWithContent(const std::string&fileName, const std::string& content)
+ActionTimeline* ActionTimelineCache::loadAnimationActionWithContent(const std::string&fileName, const std::string& content)
 {
     // if already exists an action with filename, then return this action
-    TimelineAction* action = _animationActions.at(fileName);
+    ActionTimeline* action = _animationActions.at(fileName);
     if(action)
         return action;
 
@@ -151,7 +152,7 @@ TimelineAction* TimelineActionCache::loadAnimationActionWithContent(const std::s
 
     const rapidjson::Value& json = DICTOOL->getSubDictionary_json(doc, ACTION);
 
-    action = TimelineAction::create();
+    action = ActionTimeline::create();
 
     action->setDuration(DICTOOL->getIntValue_json(json, DURATION));
     action->setTimeSpeed(DICTOOL->getFloatValue_json(json, TIME_SPEED, 1.0f));
@@ -172,7 +173,7 @@ TimelineAction* TimelineActionCache::loadAnimationActionWithContent(const std::s
 }
 
 
-Timeline* TimelineActionCache::loadTimeline(const rapidjson::Value& json)
+Timeline* ActionTimelineCache::loadTimeline(const rapidjson::Value& json)
 {
     Timeline* timeline = nullptr;
 
@@ -215,7 +216,7 @@ Timeline* TimelineActionCache::loadTimeline(const rapidjson::Value& json)
     return timeline;
 }
 
-Frame* TimelineActionCache::loadVisibleFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadVisibleFrame(const rapidjson::Value& json)
 {
     VisibleFrame* frame = VisibleFrame::create();
 
@@ -225,7 +226,7 @@ Frame* TimelineActionCache::loadVisibleFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadPositionFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadPositionFrame(const rapidjson::Value& json)
 {
     PositionFrame* frame = PositionFrame::create();
 
@@ -236,7 +237,7 @@ Frame* TimelineActionCache::loadPositionFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadScaleFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadScaleFrame(const rapidjson::Value& json)
 {
    ScaleFrame* frame = ScaleFrame::create();
 
@@ -249,7 +250,7 @@ Frame* TimelineActionCache::loadScaleFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadSkewFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadSkewFrame(const rapidjson::Value& json)
 {
     SkewFrame* frame = SkewFrame::create();
 
@@ -262,7 +263,7 @@ Frame* TimelineActionCache::loadSkewFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadRotationSkewFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadRotationSkewFrame(const rapidjson::Value& json)
 {
     RotationSkewFrame* frame = RotationSkewFrame::create();
 
@@ -275,7 +276,7 @@ Frame* TimelineActionCache::loadRotationSkewFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadRotationFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadRotationFrame(const rapidjson::Value& json)
 {
     RotationFrame* frame = RotationFrame::create();
 
@@ -285,7 +286,7 @@ Frame* TimelineActionCache::loadRotationFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadAnchorPointFrame (const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadAnchorPointFrame (const rapidjson::Value& json)
 {
     AnchorPointFrame* frame = AnchorPointFrame::create();
 
@@ -297,7 +298,7 @@ Frame* TimelineActionCache::loadAnchorPointFrame (const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadInnerActionFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadInnerActionFrame(const rapidjson::Value& json)
 {
     InnerActionFrame* frame = InnerActionFrame::create();
 
@@ -310,7 +311,7 @@ Frame* TimelineActionCache::loadInnerActionFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadColorFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadColorFrame(const rapidjson::Value& json)
 {
     ColorFrame* frame = ColorFrame::create();
 
@@ -325,7 +326,7 @@ Frame* TimelineActionCache::loadColorFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadTextureFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadTextureFrame(const rapidjson::Value& json)
 {
     TextureFrame* frame = TextureFrame::create();
 
@@ -342,12 +343,12 @@ Frame* TimelineActionCache::loadTextureFrame(const rapidjson::Value& json)
             path = jsonPath + texture;
         }
 
-        frame->setTexture(path);
+        frame->setTextureName(path);
     }
     return frame;
 }
 
-Frame* TimelineActionCache::loadEventFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadEventFrame(const rapidjson::Value& json)
 {
     EventFrame* frame = EventFrame::create();
 
@@ -359,7 +360,7 @@ Frame* TimelineActionCache::loadEventFrame(const rapidjson::Value& json)
     return frame;
 }
 
-Frame* TimelineActionCache::loadZOrderFrame(const rapidjson::Value& json)
+Frame* ActionTimelineCache::loadZOrderFrame(const rapidjson::Value& json)
 {
     ZOrderFrame* frame = ZOrderFrame::create();
 
