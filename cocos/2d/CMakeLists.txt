@@ -61,6 +61,7 @@ set(COCOS_2D_SRC
   2d/CCRenderTexture.cpp
   2d/CCScene.cpp
   2d/CCSpriteBatchNode.cpp
+  2d/CCMeshSprite.cpp
   2d/CCSprite.cpp
   2d/CCSpriteFrameCache.cpp
   2d/CCSpriteFrame.cpp
