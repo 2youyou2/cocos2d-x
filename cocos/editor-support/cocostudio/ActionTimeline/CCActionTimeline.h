@@ -29,6 +29,8 @@ THE SOFTWARE.
 #include "renderer/CCRenderer.h"
 #include "cocostudio/CocosStudioExport.h"
 
+#define ACTION_TIMELINE_TAG 10000
+
 NS_TIMELINE_BEGIN
 
 class CC_STUDIO_DLL ActionTimelineData : public cocos2d::Ref

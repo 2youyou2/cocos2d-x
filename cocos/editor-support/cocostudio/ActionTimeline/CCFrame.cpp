@@ -465,11 +465,37 @@ InnerActionFrame* InnerActionFrame::create()
 InnerActionFrame::InnerActionFrame()
     : _innerActionType(LoopAction)
     , _startFrameIndex(0)
+    , _action(nullptr)
+    , _duration(0)
 {
 }
 
 void InnerActionFrame::onEnter(Frame *nextFrame)
 {
+    _action = dynamic_cast<ActionTimeline*>(_node->getActionByTag(ACTION_TIMELINE_TAG));
+    _duration = nextFrame->getFrameIndex() - _frameIndex;
+}
+
+void InnerActionFrame::apply(float percent)
+{
+    if(_action)
+    {
+        int index = 0;
+        switch (_innerActionType)
+        {
+        case cocostudio::timeline::LoopAction:
+            index = _startFrameIndex + _duration*percent;
+            index = index%_action->getDuration();
+            break;
+        case cocostudio::timeline::NoLoopAction:
+            index = _startFrameIndex + _duration*percent;
+            break;
+        default:
+            break;
+        }
+
+        _action->gotoFrameAndPause(index);
+    }
 }
 
 

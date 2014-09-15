@@ -32,6 +32,7 @@ THE SOFTWARE.
 NS_TIMELINE_BEGIN
 
 class Timeline;
+class ActionTimeline;
 
 class CC_STUDIO_DLL Frame : public cocos2d::Ref
 {
@@ -250,6 +251,7 @@ public:
     InnerActionFrame();
 
     virtual void onEnter(Frame *nextFrame) override;
+    virtual void apply(float percent) override;
     virtual Frame* clone() override;
 
     inline void setInnerActionType(InnerActionType type) { _innerActionType = type; }
@@ -258,9 +260,12 @@ public:
     inline void setStartFrameIndex(int frameIndex) { _startFrameIndex = frameIndex; }
     inline int  getStartFrameIndex() const { return _startFrameIndex; }
 
+    inline ActionTimeline* getInnerAction() { return _action; }
 protected:
     InnerActionType _innerActionType;
     int _startFrameIndex;
+    ActionTimeline* _action;
+    int _duration;
 };
 
 

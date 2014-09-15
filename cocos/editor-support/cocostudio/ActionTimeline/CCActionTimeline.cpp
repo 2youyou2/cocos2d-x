@@ -79,6 +79,7 @@ ActionTimeline::ActionTimeline()
     , _endFrame(0)
     , _frameEventListener(nullptr)
 {
+    _tag = ACTION_TIMELINE_TAG;
 }
 
 ActionTimeline::~ActionTimeline()
