@@ -239,6 +239,7 @@ protected:
 
 enum InnerActionType
 {
+    LoopNone = -1,
     LoopAction,
     NoLoopAction,
     SingleFrame

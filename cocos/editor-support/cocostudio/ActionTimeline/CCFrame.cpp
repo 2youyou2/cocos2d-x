@@ -483,12 +483,17 @@ void InnerActionFrame::apply(float percent)
         int index = 0;
         switch (_innerActionType)
         {
-        case cocostudio::timeline::LoopAction:
+        case LoopNone:
+            return;
+        case LoopAction:
             index = _startFrameIndex + _duration*percent;
             index = index%_action->getDuration();
             break;
-        case cocostudio::timeline::NoLoopAction:
+        case NoLoopAction:
             index = _startFrameIndex + _duration*percent;
+            break;
+        case SingleFrame:
+            index = _startFrameIndex;
             break;
         default:
             break;

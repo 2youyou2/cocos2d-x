@@ -455,6 +455,9 @@ Node* CSLoader::loadSubGraph(const rapidjson::Value& json)
     if (filePath && strcmp("", filePath) != 0)
     {
         node = createNode(filePath);
+        ActionTimeline* action = ActionTimelineCache::getInstance()->createAction(filePath);
+        if(action)
+            node->runAction(action);
     }
     else
     {
