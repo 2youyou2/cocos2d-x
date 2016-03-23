@@ -202,6 +202,8 @@
     textField.hidden = NO;
     textField.wantsLayer = YES;
     textField.delegate = self;
+    
+    [self setLineBreakMode:NSLineBreakByTruncatingTail];
 }
 
 - (void)doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance
