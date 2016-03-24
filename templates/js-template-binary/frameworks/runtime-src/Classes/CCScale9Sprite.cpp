@@ -1051,6 +1051,10 @@ void Scale9SpriteV2::updateColor() {
 }
 
 void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) {
+    if (!this->_spriteFrame || !this->_spriteFrame->getTexture()) {
+        return;
+    }
+    
     if(this->_quadsDirty) {
         //rebuild quads
         this->_rebuildQuads();
