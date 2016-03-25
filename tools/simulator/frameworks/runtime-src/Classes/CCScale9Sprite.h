@@ -59,36 +59,7 @@ public:
         NORMAL = 0,
         GRAY = 1,
     };
-private:
-    //resource data
-    cocos2d::SpriteFrame* _spriteFrame; //null;
-    
-    //scale 9 data
-    float _insetLeft;//: 0,
-    float _insetRight;//: 0,
-    float _insetTop;//: 0,
-    float _insetBottom;//: 0,
-    //blend function
-    cocos2d::BlendFunc _blendFunc; //: null,
-    //sliced or simple
-    RenderingType _renderingType; //: 1,
-    //bright or not
-    State _brightState;//: 0,
-    //rendering quads
-    std::vector<cocos2d::V3F_C4B_T2F_Quad> _quads;//: [],
-    bool _quadsDirty;//: true,
-    cocos2d::V3F_C4B_T2F_Quad _rawQuad;//: null,
-    bool _isTriangle;//: false,
-    bool _isTrimmedContentSize;//: true,
-    //fill type
-    FillType _fillType;//: 0,
-    //for fill radial
-    cocos2d::Vec2 _fillCenter; //: null,
-    //normalized filled start and range
-    float _fillStart; //: 0,
-    float _fillRange; //: Math.PI * 2,
-    //indicate that rendercommand need to be rebuild or not;
-    bool _needRebuildRenderCommand;
+
 public:
     Scale9SpriteV2();
     virtual ~Scale9SpriteV2();
@@ -134,10 +105,10 @@ public:
     void setInsetRight(float value);
     void setInsetBottom(float value);
     
-    float setInsetLeft() const { return this->_insetLeft; }
-    float setInsetTop() const { return this->_insetTop; }
-    float setInsetRight() const { return this->_insetRight; }
-    float setInsetBottom() const { return this->_insetBottom; }
+    float getInsetLeft() const { return this->_insetLeft; }
+    float getInsetTop() const { return this->_insetTop; }
+    float getInsetRight() const { return this->_insetRight; }
+    float getInsetBottom() const { return this->_insetBottom; }
     
     void setFillType(FillType value);
     void setFillCenter(const cocos2d::Vec2& center);
@@ -153,11 +124,42 @@ public:
     virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
 protected:
     virtual void updateColor() override;
+
 private:
+    void _rebuildQuads ();
+    //resource data
+    cocos2d::SpriteFrame* _spriteFrame;
+    
+    //scale 9 data
+    float _insetLeft;
+    float _insetRight;
+    float _insetTop;
+    float _insetBottom;
+    //blend function
+    cocos2d::BlendFunc _blendFunc;
+    //sliced or simple
+    RenderingType _renderingType;
+    //bright or not
+    State _brightState;
+    //rendering quads
+    std::vector<cocos2d::V3F_C4B_T2F_Quad> _quads;
+    bool _quadsDirty;
+    cocos2d::V3F_C4B_T2F_Quad _rawQuad;
+    bool _isTriangle;
+    bool _isTrimmedContentSize;
+    //fill type
+    FillType _fillType;
+    //for fill radial
+    cocos2d::Vec2 _fillCenter;
+    //normalized filled start and range
+    float _fillStart;
+    float _fillRange;
+    //indicate that rendercommand need to be rebuild or not;
+    bool _needRebuildRenderCommand;
+    
     std::vector<cocos2d::V3F_C4B_T2F> _verts;
     std::vector<unsigned short> _indices;
     cocos2d::TrianglesCommand _renderCommand;
-    void _rebuildQuads ();
     
 };
 

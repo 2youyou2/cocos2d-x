@@ -516,12 +516,12 @@ public:
 class fillQuadGeneratorRadial
 {
 private:
-    cocos2d::Vec2 _vertPos[4];// = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-    cocos2d::Vec2 _vertices[2];// = [cc.v2(0,0),cc.v2(0,0)];
-    cocos2d::Vec2 _uvs[2]; // = [cc.v2(0,0),cc.v2(0,0)];
-    bool _vertsIn[4];// = [false,false,false,false];
-    std::vector<std::shared_ptr<cocos2d::Vec2>> _intersectPoint_1;// = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-    std::vector<std::shared_ptr<cocos2d::Vec2>>  _intersectPoint_2;// = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+    cocos2d::Vec2 _vertPos[4];
+    cocos2d::Vec2 _vertices[2];
+    cocos2d::Vec2 _uvs[2];
+    bool _vertsIn[4];
+    std::vector<std::shared_ptr<cocos2d::Vec2>> _intersectPoint_1;
+    std::vector<std::shared_ptr<cocos2d::Vec2>>  _intersectPoint_2;
 public:
     fillQuadGeneratorRadial() {
         _intersectPoint_1.resize(4);

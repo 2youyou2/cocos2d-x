@@ -62,10 +62,9 @@ state
 
 /**
  * @method setInsetBottom
-* @param {float} float
-* @return {float}
-*/
-setInsetBottom : function(
+ * @param {float} arg0
+ */
+setInsetBottom : function (
 float 
 )
 {
@@ -103,10 +102,9 @@ getFillRange : function (
 
 /**
  * @method setInsetTop
-* @param {float} float
-* @return {float}
-*/
-setInsetTop : function(
+ * @param {float} arg0
+ */
+setInsetTop : function (
 float 
 )
 {
@@ -169,13 +167,23 @@ texture2d
 },
 
 /**
- * @method getFillCenter
- * @return {vec2_object}
+ * @method getInsetLeft
+ * @return {float}
  */
-getFillCenter : function (
+getInsetLeft : function (
 )
 {
-    return cc.Vec2;
+    return 0;
+},
+
+/**
+ * @method getInsetBottom
+ * @return {float}
+ */
+getInsetBottom : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -199,6 +207,16 @@ float
 },
 
 /**
+ * @method getInsetRight
+ * @return {float}
+ */
+getInsetRight : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setBlendFunc
 * @param {unsigned int|cc.BlendFunc} int
 * @param {unsigned int} int
@@ -211,11 +229,30 @@ int
 },
 
 /**
+ * @method getFillCenter
+ * @return {vec2_object}
+ */
+getFillCenter : function (
+)
+{
+    return cc.Vec2;
+},
+
+/**
+ * @method getInsetTop
+ * @return {float}
+ */
+getInsetTop : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setInsetLeft
-* @param {float} float
-* @return {float}
-*/
-setInsetLeft : function(
+ * @param {float} arg0
+ */
+setInsetLeft : function (
 float 
 )
 {
@@ -245,10 +282,9 @@ filltype
 
 /**
  * @method setInsetRight
-* @param {float} float
-* @return {float}
-*/
-setInsetRight : function(
+ * @param {float} arg0
+ */
+setInsetRight : function (
 float 
 )
 {
