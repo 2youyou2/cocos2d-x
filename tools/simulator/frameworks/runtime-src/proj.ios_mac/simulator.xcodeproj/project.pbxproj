@@ -13,10 +13,10 @@
 		15A8A4881834C90F00142BE0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 15A8A4871834C90E00142BE0 /* libcurl.dylib */; };
 		1AF4C403178663F200122817 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF4C402178663F200122817 /* libz.dylib */; };
 		3EEEDB61197107C0006A9FF8 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EEEDB60197107C0006A9FF8 /* MediaPlayer.framework */; };
-		4DDA7B9D1C8475AC00AE578A /* jsb_creator_auto_api.js in Resources */ = {isa = PBXBuildFile; fileRef = 4DDA7B981C8475AC00AE578A /* jsb_creator_auto_api.js */; };
-		4DDA7B9E1C8475AC00AE578A /* jsb_creator_auto_api.js in Resources */ = {isa = PBXBuildFile; fileRef = 4DDA7B981C8475AC00AE578A /* jsb_creator_auto_api.js */; };
-		4DDA7B9F1C8475AC00AE578A /* jsb_creator_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDA7B991C8475AC00AE578A /* jsb_creator_auto.cpp */; };
-		4DDA7BA01C8475AC00AE578A /* jsb_creator_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDA7B991C8475AC00AE578A /* jsb_creator_auto.cpp */; };
+		4D12295E1CA54AAB006BF082 /* jsb_creator_auto_api.js in Resources */ = {isa = PBXBuildFile; fileRef = 4D12295B1CA54AAB006BF082 /* jsb_creator_auto_api.js */; };
+		4D12295F1CA54AAB006BF082 /* jsb_creator_auto_api.js in Resources */ = {isa = PBXBuildFile; fileRef = 4D12295B1CA54AAB006BF082 /* jsb_creator_auto_api.js */; };
+		4D1229601CA54AAB006BF082 /* jsb_creator_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D12295C1CA54AAB006BF082 /* jsb_creator_auto.cpp */; };
+		4D1229611CA54AAB006BF082 /* jsb_creator_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D12295C1CA54AAB006BF082 /* jsb_creator_auto.cpp */; };
 		4DF78D331CA4EDBD00755F5D /* CCScale9Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DF78D311CA4EDBD00755F5D /* CCScale9Sprite.cpp */; };
 		4DF78D341CA4EDBD00755F5D /* CCScale9Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DF78D311CA4EDBD00755F5D /* CCScale9Sprite.cpp */; };
 		5023811817EBBCAC00990C9B /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5023810817EBBCAC00990C9B /* AppController.mm */; };
@@ -211,9 +211,9 @@
 		1AF4C402178663F200122817 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		3EB51526195187AF006966AA /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		3EEEDB60197107C0006A9FF8 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
-		4DDA7B981C8475AC00AE578A /* jsb_creator_auto_api.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_creator_auto_api.js; sourceTree = "<group>"; };
-		4DDA7B991C8475AC00AE578A /* jsb_creator_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_auto.cpp; sourceTree = "<group>"; };
-		4DDA7B9A1C8475AC00AE578A /* jsb_creator_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_auto.hpp; sourceTree = "<group>"; };
+		4D12295B1CA54AAB006BF082 /* jsb_creator_auto_api.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_creator_auto_api.js; sourceTree = "<group>"; };
+		4D12295C1CA54AAB006BF082 /* jsb_creator_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_auto.cpp; sourceTree = "<group>"; };
+		4D12295D1CA54AAB006BF082 /* jsb_creator_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_auto.hpp; sourceTree = "<group>"; };
 		4DF78D311CA4EDBD00755F5D /* CCScale9Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCScale9Sprite.cpp; path = ../Classes/CCScale9Sprite.cpp; sourceTree = "<group>"; };
 		4DF78D321CA4EDBD00755F5D /* CCScale9Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCScale9Sprite.h; path = ../Classes/CCScale9Sprite.h; sourceTree = "<group>"; };
 		5023810717EBBCAC00990C9B /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
@@ -356,20 +356,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4DDA7B961C8475AC00AE578A /* jsb */ = {
+		4D1229591CA54AAB006BF082 /* jsb */ = {
 			isa = PBXGroup;
 			children = (
-				4DDA7B971C8475AC00AE578A /* api */,
-				4DDA7B991C8475AC00AE578A /* jsb_creator_auto.cpp */,
-				4DDA7B9A1C8475AC00AE578A /* jsb_creator_auto.hpp */,
+				4D12295A1CA54AAB006BF082 /* api */,
+				4D12295C1CA54AAB006BF082 /* jsb_creator_auto.cpp */,
+				4D12295D1CA54AAB006BF082 /* jsb_creator_auto.hpp */,
 			);
-			path = jsb;
+			name = jsb;
+			path = ../Classes/jsb;
 			sourceTree = "<group>";
 		};
-		4DDA7B971C8475AC00AE578A /* api */ = {
+		4D12295A1CA54AAB006BF082 /* api */ = {
 			isa = PBXGroup;
 			children = (
-				4DDA7B981C8475AC00AE578A /* jsb_creator_auto_api.js */,
+				4D12295B1CA54AAB006BF082 /* jsb_creator_auto_api.js */,
 			);
 			path = api;
 			sourceTree = "<group>";
@@ -536,9 +537,9 @@
 		F293BB7C15EB830F00256477 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				4D1229591CA54AAB006BF082 /* jsb */,
 				4DF78D311CA4EDBD00755F5D /* CCScale9Sprite.cpp */,
 				4DF78D321CA4EDBD00755F5D /* CCScale9Sprite.h */,
-				4DDA7B961C8475AC00AE578A /* jsb */,
 				9FB6C0551A69815100945236 /* ide-support */,
 				15427CE2198F237300DC375D /* lua_module_register.h */,
 				9FB5D7321A692CF0002361CA /* js_module_register.h */,
@@ -720,7 +721,7 @@
 				9FB6C05F1A69815100945236 /* lang in Resources */,
 				DA96489E1A70F925001F41E8 /* ConsoleWindow.xib in Resources */,
 				5023817617EBBE3400990C9B /* Icon.icns in Resources */,
-				4DDA7B9E1C8475AC00AE578A /* jsb_creator_auto_api.js in Resources */,
+				4D12295F1CA54AAB006BF082 /* jsb_creator_auto_api.js in Resources */,
 				9FFC07361A4A764100AED399 /* MainMenu.xib in Resources */,
 				C05D1C131923449100B808A4 /* config.json in Resources */,
 			);
@@ -743,7 +744,7 @@
 				5023812217EBBCAC00990C9B /* Icon-76.png in Resources */,
 				5091733A17ECE17A00D62437 /* Icon-80.png in Resources */,
 				5091733717ECE17A00D62437 /* Icon-40.png in Resources */,
-				4DDA7B9D1C8475AC00AE578A /* jsb_creator_auto_api.js in Resources */,
+				4D12295E1CA54AAB006BF082 /* jsb_creator_auto_api.js in Resources */,
 				5023811E17EBBCAC00990C9B /* Icon-144.png in Resources */,
 				5023811A17EBBCAC00990C9B /* Default.png in Resources */,
 				5091733817ECE17A00D62437 /* Icon-50.png in Resources */,
@@ -767,7 +768,7 @@
 				5023813317EBBCE400990C9B /* AppDelegate.cpp in Sources */,
 				9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */,
 				9FB6C0651A69815100945236 /* RuntimeLuaImpl.cpp in Sources */,
-				4DDA7BA01C8475AC00AE578A /* jsb_creator_auto.cpp in Sources */,
+				4D1229611CA54AAB006BF082 /* jsb_creator_auto.cpp in Sources */,
 				C07828F818B4D72E00BD2287 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -783,7 +784,7 @@
 				F293BB9C15EB831F00256477 /* AppDelegate.cpp in Sources */,
 				5023812417EBBCAC00990C9B /* main.m in Sources */,
 				9FB6C0641A69815100945236 /* RuntimeLuaImpl.cpp in Sources */,
-				4DDA7B9F1C8475AC00AE578A /* jsb_creator_auto.cpp in Sources */,
+				4D1229601CA54AAB006BF082 /* jsb_creator_auto.cpp in Sources */,
 				5023811817EBBCAC00990C9B /* AppController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
