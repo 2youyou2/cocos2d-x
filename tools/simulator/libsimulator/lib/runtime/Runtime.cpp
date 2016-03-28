@@ -274,15 +274,15 @@ void RuntimeEngine::start()
     }
 
     //
-    if (_project.getDebuggerType() == kCCRuntimeDebuggerNone)
-    {
+    // if (_project.getDebuggerType() == kCCRuntimeDebuggerNone)
+    // {
         setupRuntime();
         startScript("");
-    }
-    else
-    {
-        startNetwork();
-    }
+    // }
+    // else
+    // {
+    //     startNetwork();
+    // }
 }
 
 void RuntimeEngine::end()
