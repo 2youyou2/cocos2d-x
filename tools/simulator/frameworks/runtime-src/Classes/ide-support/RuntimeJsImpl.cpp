@@ -306,6 +306,12 @@ bool RuntimeJsImpl::loadScriptFile(const std::string& path)
     initJsEnv();
     auto engine = ScriptingCore::getInstance();
     engine->runScript(RUNTIME_JS_BOOT_SCRIPT);
+    
+    // if (RuntimeEngine::getInstance()->getProjectConfig().getDebuggerType() != kCCRuntimeDebuggerNone)
+    // {
+        this->startWithDebugger();
+    // }
+   
     ScriptEngineManager::getInstance()->setScriptEngine(engine);
     return ScriptingCore::getInstance()->runScript(filepath.c_str());
 }

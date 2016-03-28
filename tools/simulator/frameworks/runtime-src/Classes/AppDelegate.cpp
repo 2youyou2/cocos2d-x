@@ -52,13 +52,6 @@ bool AppDelegate::applicationDidFinishLaunching()
     auto jsRuntime = RuntimeJsImpl::create();
     runtimeEngine->addRuntime(jsRuntime, kRuntimeEngineJs);
     runtimeEngine->start();
-    
-    // js need special debug port
-    if (runtimeEngine->getProjectConfig().getDebuggerType() != kCCRuntimeDebuggerNone)
-    {
-        jsRuntime->startWithDebugger();
-    }
-
 
     // Runtime end
     cocos2d::log("iShow!");
