@@ -519,9 +519,8 @@ private:
     cocos2d::Vec2 _vertPos[4];
     cocos2d::Vec2 _vertices[2];
     cocos2d::Vec2 _uvs[2];
-    bool _vertsIn[4];
-    std::vector<std::shared_ptr<cocos2d::Vec2>> _intersectPoint_1;
-    std::vector<std::shared_ptr<cocos2d::Vec2>>  _intersectPoint_2;
+    std::vector<cocos2d::Vec2> _intersectPoint_1;
+    std::vector<cocos2d::Vec2>  _intersectPoint_2;
 public:
     fillQuadGeneratorRadial() {
         _intersectPoint_1.resize(4);
@@ -531,6 +530,10 @@ public:
     
     std::vector<cocos2d::V3F_C4B_T2F_Quad> _rebuildQuads_base(cocos2d::SpriteFrame* spriteFrame, const cocos2d::Size& contentSize, const cocos2d::Color4B& colorOpacity, const cocos2d::Vec2& fillCenter, float fillStart, float fillRange, cocos2d::V3F_C4B_T2F_Quad& rawQuad) {
         
+        //do round fill start [0,1), include 0, exclude 1
+        while (fillStart >= 1.0) fillStart -= 1.0;
+        while (fillStart < 0.0) fillStart += 1.0;
+        
         auto center = cocos2d::Vec2(fillCenter);
         
         center.x *= contentSize.width;
@@ -538,6 +541,7 @@ public:
         
         fillStart *= M_PI * 2;
         fillRange *= M_PI * 2;
+        float fillEnd = fillStart + fillRange;
         
         //build vertices
         this->_calculateVertices(spriteFrame, contentSize);
@@ -590,79 +594,79 @@ public:
             
         }
         
-        //get vertex Angle
-        this->_vertsIn[0] = this->_isAngleIn(this->_getVertAngle(center,rawQuad.bl.vertices), fillStart, fillRange);
-        this->_vertsIn[1] = this->_isAngleIn(this->_getVertAngle(center,rawQuad.br.vertices), fillStart, fillRange);
-        this->_vertsIn[2] = this->_isAngleIn(this->_getVertAngle(center,rawQuad.tr.vertices), fillStart, fillRange);
-        this->_vertsIn[3] = this->_isAngleIn(this->_getVertAngle(center,rawQuad.tl.vertices), fillStart, fillRange);
+        int triangles[4][2] = {{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}};
+        
+        if(center.x != this->_vertices[0].x) {
+            triangles[0][0] = 3;
+            triangles[0][1] = 0;
+        }
+        if(center.x != this->_vertices[1].x) {
+            triangles[2][0] = 1;
+            triangles[2][1] = 2;
+        }
+        if(center.y != this->_vertices[0].y) {
+            triangles[1][0] = 0;
+            triangles[1][1] = 1;
+        }
+        if(center.y != this->_vertices[1].y) {
+            triangles[3][0] = 2;
+            triangles[3][1] = 3;
+            
+        }
         
         this->_getInsectedPoints(this->_vertices[0].x, this->_vertices[1].x, this->_vertices[0].y, this->_vertices[1].y, center, fillStart, this->_intersectPoint_1);
         this->_getInsectedPoints(this->_vertices[0].x, this->_vertices[1].x, this->_vertices[0].y, this->_vertices[1].y, center, fillStart + fillRange, this->_intersectPoint_2);
-        int triangles[4][2] = {{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}};
-        //in boudary
+        
         std::vector<cocos2d::V3F_C4B_T2F_Quad> quads;
-        if(center.x <= this->_vertices[1].x && center.x >= this->_vertices[0].x && center.y <= this->_vertices[1].y && center.y >= this->_vertices[0].y) {
-            if(center.x != this->_vertices[0].x) {
-                triangles[0][0] = 3;
-                triangles[0][1] = 0;
+        
+        for(int triangleIndex = 0; triangleIndex < 4; ++triangleIndex ) {
+            auto& triangle = triangles[triangleIndex];
+            if(triangle[0] == -1 || triangle[1] == -1) {
+                continue;
             }
-            if(center.x != this->_vertices[1].x) {
-                triangles[2][0] = 1;
-                triangles[2][1] = 2;
+            //all in
+            if(fillRange >= M_PI * 2) {
+                quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], this->_vertPos[triangle[1]],colorOpacity));
+                continue;
             }
-            if(center.y != this->_vertices[0].y) {
-                triangles[1][0] = 0;
-                triangles[1][1] = 1;
-            }
-            if(center.y != this->_vertices[1].y) {
-                triangles[3][0] = 2;
-                triangles[3][1] = 3;
-                
-            }
-            
-            for(int triangleIndex = 0; triangleIndex < 4; ++triangleIndex ) {
-                auto& triangle = triangles[triangleIndex];
-                if(triangle[0] == -1 || triangle[1] == -1) {
-                    continue;
-                }
-                //do triangle processing
-                
-                if(this->_intersectPoint_1[triangleIndex] == nullptr && this->_intersectPoint_2[triangleIndex] == nullptr) {
-                    //no intersect
-                    if(this->_vertsIn[triangle[0]] && this->_vertsIn[triangle[1]]) {
+            //test against
+            auto startAngle = this->_getVertAngle(center,this->_vertPos[triangle[0]]);
+            auto endAngle = this->_getVertAngle(center,this->_vertPos[triangle[1]]);
+            if(endAngle < startAngle) endAngle += M_PI * 2;
+            startAngle -= M_PI * 2;
+            endAngle -= M_PI * 2;
+            //testing
+            for(int testIndex = 0; testIndex < 3; ++testIndex) {
+                if(startAngle >= fillEnd) {
+                    //all out
+                } else if (startAngle >= fillStart) {
+                    if(endAngle >= fillEnd) {
+                        //startAngle to fillEnd
+                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], this->_intersectPoint_2[triangleIndex],colorOpacity));
+                    } else {
+                        //startAngle to endAngle
                         quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], this->_vertPos[triangle[1]],colorOpacity));
                     }
-                } else if(this->_intersectPoint_1[triangleIndex] == nullptr) {
-                    //no start intersect
-                    if(this->_vertsIn[triangle[1]] == true) {
-                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], this->_vertPos[triangle[1]],colorOpacity));
-                    } else {
-                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], *this->_intersectPoint_2[triangleIndex],colorOpacity));
-                    }
-                    
-                } else if(this->_intersectPoint_2[triangleIndex] == nullptr) {
-                    //no end intersect
-                    if(this->_vertsIn[triangle[0]] == true) {
-                        quads.push_back(this->_generateTriangle(rawQuad, center,  this->_vertPos[triangle[0]], this->_vertPos[triangle[1]],colorOpacity));
-                    } else {
-                        quads.push_back(this->_generateTriangle(rawQuad, center, *this->_intersectPoint_1[triangleIndex], this->_vertPos[triangle[1]],colorOpacity));
-                    }
-                    
                 } else {
-                    //two intersects
-                    if(this->_vertsIn[triangle[0]]) {
-                        //push two triangles
-                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_vertPos[triangle[0]], *this->_intersectPoint_2[triangleIndex],colorOpacity));
-                        quads.push_back(this->_generateTriangle(rawQuad, center, *this->_intersectPoint_1[triangleIndex], this->_vertPos[triangle[1]],colorOpacity));
+                    //startAngle < fillStart
+                    if(endAngle <= fillStart) {
+                        //all out
+                    } else if(endAngle <= fillEnd) {
+                        //fillStart to endAngle
+                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_intersectPoint_1[triangleIndex], this->_vertPos[triangle[1]],colorOpacity));
                     } else {
-                        quads.push_back(this->_generateTriangle(rawQuad, center, *this->_intersectPoint_1[triangleIndex], *this->_intersectPoint_2[triangleIndex],colorOpacity));
+                        //fillStart to fillEnd
+                        quads.push_back(this->_generateTriangle(rawQuad, center, this->_intersectPoint_1[triangleIndex], this->_intersectPoint_2[triangleIndex],colorOpacity));
                     }
                 }
+                
+                //add 2 * PI
+                startAngle += M_PI * 2;
+                endAngle += M_PI * 2;
             }
             
-        } else {
-            //todo add outside implementation
         }
+        
         return quads;
     }
     
@@ -719,7 +723,8 @@ public:
         return angle <= start + rangeAngle;
     }
     
-    float _getVertAngle(const cocos2d::Vec2& start, const cocos2d::Vec3& end) {
+    //[0,PI * 2)
+    float _getVertAngle(const cocos2d::Vec2& start, const cocos2d::Vec2& end) {
         float placementX, placementY;
         placementX = end.x - start.x;
         placementY = end.y - start.y;
@@ -728,9 +733,9 @@ public:
             return FLT_MAX;
         } else if(placementX == 0) {
             if(placementY > 0) {
-                return M_PI / 2;
+                return M_PI * 0.5;
             } else {
-                return - M_PI / 2;
+                return M_PI * 1.5;
             }
         } else {
             float angle = atanf(placementY / placementX);
@@ -742,8 +747,7 @@ public:
         }
     }
     
-    void _getInsectedPoints(float left, float right, float bottom, float top, const cocos2d::Vec2& center, float angle, std::vector<std::shared_ptr<cocos2d::Vec2>> &intersectPoints) {
-        intersectPoints[0] = intersectPoints[1] = intersectPoints[2] = intersectPoints[3] = nullptr;
+    void _getInsectedPoints(float left, float right, float bottom, float top, const cocos2d::Vec2& center, float angle, std::vector<cocos2d::Vec2> &intersectPoints) {
         //left bottom, right, top
         auto sinAngle = sinf(angle);
         auto cosAngle = cosf(angle);
@@ -753,21 +757,14 @@ public:
             //calculate right and left
             if((left - center.x) * cosAngle > 0) {
                 auto yleft = center.y + tanAngle * (left - center.x);
-                if(yleft > bottom && yleft < top) {
-                    intersectPoints[0] = std::shared_ptr<cocos2d::Vec2>(new cocos2d::Vec2());
-                    intersectPoints[0]->x = left;
-                    intersectPoints[0]->y = yleft;
-                }
+                intersectPoints[0].x = left;
+                intersectPoints[0].y = yleft;
             }
             if((right - center.x) * cosAngle > 0) {
                 auto yright = center.y + tanAngle * (right - center.x);
                 
-                if(yright > bottom && yright < top) {
-                    intersectPoints[2] = std::shared_ptr<cocos2d::Vec2>(new cocos2d::Vec2());
-                    intersectPoints[2]->x = right;
-                    intersectPoints[2]->y = yright;
-                    
-                }
+                intersectPoints[2].x = right;
+                intersectPoints[2].y = yright;
             }
             
         }
@@ -777,21 +774,13 @@ public:
             //calculate  top and bottom
             if((top - center.y) * sinAngle > 0) {
                 auto xtop = center.x  + cotAngle * (top-center.y);
-                if(xtop > left && xtop < right) {
-                    intersectPoints[3] = std::shared_ptr<cocos2d::Vec2>(new cocos2d::Vec2());
-                    
-                    intersectPoints[3]->x = xtop;
-                    intersectPoints[3]->y = top;
-                }
+                intersectPoints[3].x = xtop;
+                intersectPoints[3].y = top;
             }
             if((bottom - center.y) * sinAngle > 0) {
                 auto xbottom = center.x  + cotAngle * (bottom-center.y);
-                if(xbottom > left && xbottom < right) {
-                    intersectPoints[1] = std::shared_ptr<cocos2d::Vec2>(new cocos2d::Vec2());
-                    intersectPoints[1]->x = xbottom;
-                    intersectPoints[1]->y = bottom;
-                    
-                }
+                intersectPoints[1].x = xbottom;
+                intersectPoints[1].y = bottom;
             }
             
         }
