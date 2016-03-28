@@ -54,10 +54,10 @@ bool AppDelegate::applicationDidFinishLaunching()
     runtimeEngine->start();
     
     // js need special debug port
-    if (runtimeEngine->getProjectConfig().getDebuggerType() != kCCRuntimeDebuggerNone)
-    {
+    // if (runtimeEngine->getProjectConfig().getDebuggerType() != kCCRuntimeDebuggerNone)
+    // {
         jsRuntime->startWithDebugger();
-    }
+    // }
 
 
     // Runtime end
