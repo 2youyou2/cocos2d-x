@@ -376,7 +376,7 @@ class LibsCompiler(cocos.CCPlugin):
 
         if not self.disable_strip:
             # strip the android libs
-            ndk_root = os.environ["NDK_ROOT"]
+            ndk_root = cocos.check_environment_variable("NDK_ROOT")
             if cocos.os_is_win32():
                 if cocos.os_is_32bit_windows():
                     check_bits = [ "", "-x86_64" ]

@@ -25,6 +25,7 @@ import string
 import locale
 import gettext
 import json
+from utils import ExtendEnv
 
 
 # FIXME: MultiLanguage should be deprecated in favor of gettext
@@ -628,7 +629,9 @@ def check_environment_variable(var):
     ''' Checking the environment variable, if found then return it's value, else raise error
     '''
     try:
-        value = os.environ[var]
+        value = ExtendEnv.get_extend_env_value(var)
+        if value is None:
+            value = os.environ[var]
     except Exception:
         raise CCPluginError(MultiLanguage.get_string('COCOS_ERROR_ENV_NOT_DEFINED_FMT', var),
                             CCPluginError.ERROR_ENV_VAR_NOT_FOUND)
@@ -898,6 +901,21 @@ if __name__ == "__main__":
         MultiLanguage.set_language(sys.argv[idx+1])
 
         # remove the argument '--ol' & the value
+        sys.argv.pop(idx)
+        sys.argv.pop(idx)
+
+    # Parse the extend environment variables
+    env_arg = '--env'
+    if env_arg in sys.argv:
+        idx = sys.argv.index(env_arg)
+        if idx == (len(sys.argv) - 1):
+            Logging.error(MultiLanguage.get_string('COCOS_ERROR_ENV_NO_VALUE'))
+            sys.exit(CCPluginError.ERROR_WRONG_ARGS)
+
+        # add extend environment variables
+        ExtendEnv.parse_extend_env(sys.argv[idx+1])
+
+        # remove the argument '--env' & the value
         sys.argv.pop(idx)
         sys.argv.pop(idx)
 

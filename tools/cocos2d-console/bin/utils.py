@@ -245,3 +245,23 @@ def get_engine_version(engine_path):
         pass
 
     return ret
+
+class ExtendEnv(object):
+    extend_env = {}
+
+    @classmethod
+    def parse_extend_env(cls, env):
+        env_list = env.split(':')
+        for item in env_list:
+            index = item.find('=')
+            if index > 0:
+                key = item[:index]
+                value = item[index+1:]
+                cls.extend_env[key] = value
+
+    @classmethod
+    def get_extend_env_value(cls, key):
+        if (cls.extend_env.has_key(key)):
+            return cls.extend_env[key]
+        else:
+            return None
