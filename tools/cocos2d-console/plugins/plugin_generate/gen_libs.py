@@ -14,6 +14,7 @@ from MultiLanguage import MultiLanguage
 from cocos import CCPluginError
 from cocos import Logging
 from argparse import ArgumentParser
+from utils import ExtendEnv
 
 class LibsCompiler(cocos.CCPlugin):
     CFG_FILE = 'configs/gen_libs_config.json'
@@ -361,6 +362,10 @@ class LibsCompiler(cocos.CCPlugin):
         # build the simulator project
         proj_path = os.path.join(engine_dir, 'tools/simulator')
         build_cmd = "%s compile -s %s -p android --ndk-mode %s --app-abi %s" % (cmd_path, proj_path, self.mode, self.app_abi)
+
+        env_param = ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            build_cmd += (' --env "%s"' % env_param)
         self._run_cmd(build_cmd)
 
         # copy .a to prebuilt dir

@@ -386,6 +386,10 @@ class CCPluginCompile(cocos.CCPlugin):
 
             compile_cmd = "%s -e %s" % (compile_cmd, add_para)
 
+        env_param = utils.ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            compile_cmd += (' --env "%s"' % env_param)
+
         # run compile command
         self._run_cmd(compile_cmd)
 
@@ -402,6 +406,10 @@ class CCPluginCompile(cocos.CCPlugin):
         cocos_cmd_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "cocos")
         rm_ext = ".js"
         compile_cmd = "\"%s\" jscompile -s \"%s\" -d \"%s\"" % (cocos_cmd_path, src_dir, dst_dir)
+
+        env_param = utils.ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            compile_cmd += (' --env "%s"' % env_param)
 
         # run compile command
         self._run_cmd(compile_cmd)
@@ -1283,7 +1291,7 @@ class CCPluginCompile(cocos.CCPlugin):
         indexHtmlOutputFile = open(os.path.join(publish_dir, "index.html"), "w")
         indexHtmlOutputFile.write(indexContent)
         indexHtmlOutputFile.close()
-
+        
         # copy res dir
         if cfg_obj.copy_res is None:
             dst_dir = os.path.join(publish_dir, 'res')

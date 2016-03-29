@@ -234,11 +234,16 @@ class SimulatorCompiler(cocos.CCPlugin):
             command = "xcodebuild -alltargets -configuration %s clean" % ("Debug" if self.mode == 'debug' else 'Release')
             self._run_cmd(command, project_directory)
 
+        cocos_cmd = "%s compile -p mac -m %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
+                , "debug" if self.mode == 'debug' else "release"
+                , os.path.join(self.simulator_output_dir,"mac"))
+        env_param = utils.ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            cocos_cmd += (' --env "%s"' % env_param)
+
         command = ' '.join([
             "mkdir -p %s" % (os.path.join(self.simulator_abs_path, "src")),
-            " && %s compile -p mac -m %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
-                , "debug" if self.mode == 'debug' else "release"
-                , os.path.join(self.simulator_output_dir,"mac")),
+            " && %s" % cocos_cmd,
             " && strip %s" % (os.path.join(self.simulator_output_dir,"mac/Simulator.app/Contents/MacOS/Simulator")),
             ])
 
@@ -252,10 +257,15 @@ class SimulatorCompiler(cocos.CCPlugin):
             command = "xcodebuild -alltargets -configuration %s clean" % ("Debug" if self.mode =='debug' else 'Release')
             self._run_cmd(command, project_directory)
 
-        command = ' '.join([
-            " %s compile -p ios -m %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
+        cocos_cmd = " %s compile -p ios -m %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
                 , "debug" if self.mode == 'debug' else "release"
-                , os.path.join(self.simulator_output_dir,"ios")),
+                , os.path.join(self.simulator_output_dir,"ios"))
+        env_param = utils.ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            cocos_cmd += (' --env "%s"' % env_param)
+
+        command = ' '.join([
+            cocos_cmd,
             " && strip %s" % (os.path.join(self.simulator_output_dir,"ios","Simulator.app/Simulator")),
             " && rm -fr %s" % (os.path.join(self.simulator_output_dir,"ios","Simulator.app.dSYM")),
             ])
@@ -278,20 +288,28 @@ class SimulatorCompiler(cocos.CCPlugin):
         else:
             ver_param = '--vs %d' % self.vs_version
 
+        env_param = utils.ExtendEnv.get_extend_env_str()
         if self.mode == 'debug':
             win32_src_dir = os.path.join(self.simulator_abs_path,"runtime/win32/")
             win32_src_dir = self.convert_path_to_win32(win32_src_dir)
             win32_dll_dir = self.convert_path_to_win32(os.path.join(os.path.dirname(self.cur_dir),"dll/"))
+            cocos_cmd = " %s compile -p win32 -m debug --no-res --compile-script 0 %s" % (self.cocos_bin, ver_param)
+            if env_param and len(env_param) > 0:
+                cocos_cmd += (' --env "%s"' % env_param)
+
             command = ' '.join([
-                " %s compile -p win32 -m debug --no-res --compile-script 0 %s" % (self.cocos_bin, ver_param),
+                cocos_cmd,
                 " && xcopy /Y %s*.dll %s" % (win32_src_dir, win32_output_dir),
                 " && xcopy /Y %s*.exe %s" % (win32_src_dir, win32_output_dir),
                 " && %s" % (lang_copy_command),
                 " && if exist %s*.dll xcopy /Y %s*.dll %s" % (win32_dll_dir,win32_dll_dir,win32_output_dir)
             ])
         else:
+            cocos_cmd = " %s compile -p win32 -m release --no-res --compile-script 0 -o %s %s" % (self.cocos_bin,win32_output_dir,ver_param)
+            if env_param and len(env_param) > 0:
+                cocos_cmd += (' --env "%s"' % env_param)
             command = ' '.join([
-                " %s compile -p win32 -m release --no-res --compile-script 0 -o %s %s" % (self.cocos_bin,win32_output_dir,ver_param),
+                cocos_cmd,
                 " && %s" % (lang_copy_command),
                 ])
 
@@ -304,10 +322,15 @@ class SimulatorCompiler(cocos.CCPlugin):
                               os.path.join(self.simulator_output_dir,"android","Simulator.apk"))
             ])
 
+        cocos_cmd = " %s compile -p android --ndk-mode %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
+                     , "debug" if self.mode == 'debug' else "release"
+                     , os.path.join(self.simulator_output_dir,"android"))
+        env_param = utils.ExtendEnv.get_extend_env_str()
+        if env_param and len(env_param) > 0:
+            cocos_cmd += (' --env "%s"' % env_param)
+
         command = ' '.join([
-            " %s compile -p android --ndk-mode %s -o \"%s\" --no-res --compile-script 0" % (self.cocos_bin
-                 , "debug" if self.mode == 'debug' else "release"
-                 , os.path.join(self.simulator_output_dir,"android")),
+            cocos_cmd,
             "&& %s" % (rename_command),
             ])
 
