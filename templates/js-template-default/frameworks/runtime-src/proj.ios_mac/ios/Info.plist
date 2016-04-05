@@ -10,8 +10,6 @@
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>Icon.png</string>
-		<string>Icon@2x.png</string>
 		<string>Icon-72.png</string>
 		<string>Icon-144.png</string>
 		<string>Icon-57.png</string>
@@ -28,8 +26,6 @@
 				<string>Icon-29</string>
 				<string>Icon-120</string>
 				<string>Icon-72.png</string>
-				<string>Icon.png</string>
-				<string>Icon@2x.png</string>
 				<string>Icon-57.png</string>
 				<string>Icon-114.png</string>
 				<string>Icon-144.png</string>
@@ -87,6 +83,8 @@
 		<key>opengles-1</key>
 		<true/>
 	</dict>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UIStatusBarHidden</key>
 	<true/>
 	<key>UISupportedInterfaceOrientations</key>
